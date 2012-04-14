@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<configuration>
+
+
+  <appender name="CUSTOM" class="org.fluentd.logger.sender.appender.FluentAppender" >
+    <layout>
+      <Pattern>%date [%thread] %-5level %logger - %msg%n</Pattern>
+    </layout>
+    <tag>app</tag>
+    <label>label</label>
+    <host>localhost</host>
+    <port>24224</port>
+  </appender>
+
+  <root level="debug">
+    <appender-ref ref="CUSTOM" />
+  </root>  
+</configuration>
+
+
+
