@@ -1,6 +1,7 @@
 bin/
 target/
 .settings/
+test-output/
 .DS_Store
 .project
 .classpath

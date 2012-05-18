@@ -11,26 +11,16 @@ import ch.qos.logback.core.UnsynchronizedAppenderBase;
 
 public class FluentAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
-	private FluentLogger fluentLogger;
-
+	protected String defaultTag;
+	
 	protected Layout<ILoggingEvent> layout;
 
-	protected String tag;
+	protected Map<String, ConnectionInfo> connections = new HashMap<String, ConnectionInfo>();
 	
-	protected String host;
-
-	protected int port;
+	public void setConnectionInfo(ConnectionInfo connectionInfo) {
+		connections.put(connectionInfo.getTag(), connectionInfo);
+	}
 	
-	protected String label;
-
-	public String getLabel() {
-		return label;
-	}
-
-	public void setLabel(String label) {
-		this.label = label;
-	}
-
 	public FluentAppender() {
 		super();
 	}
@@ -46,35 +36,29 @@ public class FluentAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 		this.layout = layout;
 	}
 
-	public String getTag() {
-		return tag;
+	public String getDefaultTag() {
+		return defaultTag;
 	}
 
-	public void setTag(String tag) {
-		this.tag = tag;
-	}
-
-	public void setHost(String host) {
-		this.host = host;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
+	public void setDefaultTag(String defaultTag) {
+		this.defaultTag = defaultTag;
 	}
 
 	@Override
 	protected void append(ILoggingEvent eventObject) {
 		if (!isStarted())
 			return;
-		
+		//TODO enable configuring tag
+		ConnectionInfo info = connections.get(defaultTag);
+		FluentLogger fluentLogger = FluentLogger.getLogger(info.getTag(), info.getHost(), info.getPort());
 		Map<String, Object> messages = new HashMap<String, Object>();
 		messages.put("level", eventObject.getLevel().levelStr);
 		messages.put("loggerName", eventObject.getLoggerName());
 		messages.put("MDC", eventObject.getMDCPropertyMap());
 		messages.put("thread", eventObject.getThreadName());
 		messages.put("message", eventObject.getFormattedMessage());
-		
-		fluentLogger.log(label, messages, eventObject.getTimeStamp());
+		//TODO enable configuring label
+		fluentLogger.log("label", messages, eventObject.getTimeStamp());
 	}
 
 	@Override
@@ -84,10 +68,9 @@ public class FluentAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 			return;
 		}
 
-		try {
-			fluentLogger = FluentLogger.getLogger(tag, host, port);
-		} catch (RuntimeException e) {
-			addError("Cannot create FluentLogger.", e);
+		if (connections.isEmpty()) {
+			addError("There is no connection info.");
+			return;
 		}
 
 		super.start();
