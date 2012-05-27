@@ -6,15 +6,12 @@ import java.util.Map;
 import org.fluentd.logger.FluentLogger;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Layout;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
 
 public class FluentAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 
-	protected String defaultTag;
+	protected FluentFormatterBase formatter;
 	
-	protected Layout<ILoggingEvent> layout;
-
 	protected Map<String, ConnectionInfo> connections = new HashMap<String, ConnectionInfo>();
 	
 	public void setConnectionInfo(ConnectionInfo connectionInfo) {
@@ -25,46 +22,33 @@ public class FluentAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
 		super();
 	}
 
-	public FluentAppender(final Layout<ILoggingEvent> layout) {
-		this.setLayout(layout);
+	public FluentAppender(final FluentFormatterBase formatter) {
+		super();
+		setFormatter(formatter);
 	}
 
-	/**
-	 * @param layout
-	 **/
-	public void setLayout(final Layout<ILoggingEvent> layout) {
-		this.layout = layout;
+	public void setFormatter(FluentFormatterBase formatter) {
+		this.formatter = formatter;
 	}
-
-	public String getDefaultTag() {
-		return defaultTag;
-	}
-
-	public void setDefaultTag(String defaultTag) {
-		this.defaultTag = defaultTag;
-	}
-
+	
 	@Override
 	protected void append(ILoggingEvent eventObject) {
 		if (!isStarted())
 			return;
 		//TODO enable configuring tag
-		ConnectionInfo info = connections.get(defaultTag);
+		String tag = formatter.getTag(eventObject);
+		ConnectionInfo info = connections.get(tag);
 		FluentLogger fluentLogger = FluentLogger.getLogger(info.getTag(), info.getHost(), info.getPort());
-		Map<String, Object> messages = new HashMap<String, Object>();
-		messages.put("level", eventObject.getLevel().levelStr);
-		messages.put("loggerName", eventObject.getLoggerName());
-		messages.put("MDC", eventObject.getMDCPropertyMap());
-		messages.put("thread", eventObject.getThreadName());
-		messages.put("message", eventObject.getFormattedMessage());
+		Map<String, Object> messages = formatter.format(eventObject);
+		long timeStamp = formatter.getTimeStamp(eventObject);
 		//TODO enable configuring label
-		fluentLogger.log("label", messages, eventObject.getTimeStamp());
+		fluentLogger.log(formatter.getLabel(eventObject), messages, timeStamp);
 	}
 
 	@Override
 	public void start() {
-		if (this.layout == null) {
-			addError("No layout set for the appender named [" + name + "].");
+		if (this.formatter == null) {
+			addError("No formatter set for the appender named [" + name + "].");
 			return;
 		}
 

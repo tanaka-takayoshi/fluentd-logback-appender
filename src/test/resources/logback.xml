@@ -1,26 +1,35 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE configuration>
-<configuration>
-  <appender name="FLUENTD" class="org.fluentd.logger.sender.appender.FluentAppender" >
-    <layout>
-      <Pattern>%date [%thread] %-5level %logger - %msg%n</Pattern>
-    </layout>
-    <defaultTag>log1</defaultTag>
-    <connectionInfo class="org.fluentd.logger.sender.appender.ConnectionInfo" >
-    	<tag>logs1</tag>
-	    <port>24224</port>
-    	<host>localhost</host>
-    </connectionInfo>
-    <connectionInfo class="org.fluentd.logger.sender.appender.ConnectionInfo" >
-    	<tag>loglog</tag>
-	    <port>24224</port>
-    	<host>localhost</host>
-    </connectionInfo>
-  </appender>
+<configuration  debug="true">
+	<appender name="FLUENTD"
+		class="org.fluentd.logger.sender.appender.FluentAppender">
+		<formatter class="org.fluentd.logger.sender.appender.TestFluentFormatter">
+			<tag>log1</tag>
+			<label>label</label>
+		</formatter>
+		<connectionInfo class="org.fluentd.logger.sender.appender.ConnectionInfo">
+			<tag>log1</tag>
+			<port>24224</port>
+			<host>localhost</host>
+		</connectionInfo>
+		<connectionInfo class="org.fluentd.logger.sender.appender.ConnectionInfo">
+			<tag>loglog</tag>
+			<port>24224</port>
+			<host>localhost</host>
+		</connectionInfo>
+	</appender>
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<Target>System.out</Target>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%d{HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
 
-  <root level="debug">
-    <appender-ref ref="FLUENTD" />
-  </root>  
+	<root level="debug">
+		<appender-ref ref="FLUENTD" />
+		<appender-ref ref="STDOUT" />
+	</root>
 </configuration>
 
 

@@ -15,9 +15,17 @@ public class FluentAppenderTest {
 	//FIXME must test with mock-fluentd, not actual fluetnd.
 	@Test
 	public void test() {
-		log.info("Test log message2");
-		log.debug("hogehoge");
-		log.warn("warn");
-		log.error("ngege");
+		for (int i = 0; i < Integer.MAX_VALUE; i++) {
+			log.info("Test log message" + i);
+			log.debug("hogehoge" + i);
+			log.warn("warn" + i);
+			log.error("ngege" + i);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 	}
 }
