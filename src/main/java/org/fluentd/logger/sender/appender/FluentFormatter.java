@@ -2,7 +2,9 @@ package org.fluentd.logger.sender.appender;
 
 import java.util.Map;
 
-public interface FluentFormatter<E> {
+import ch.qos.logback.core.spi.LifeCycle;
+
+public interface FluentFormatter<E> extends LifeCycle {
 
 	public Map<String, Object> format(E event);
 	
@@ -11,4 +13,8 @@ public interface FluentFormatter<E> {
 	public String getTag(E event);
 	
 	public String getLabel(E event);
+	
+	public String getName();
+	
+	public void setName(String name);
 }

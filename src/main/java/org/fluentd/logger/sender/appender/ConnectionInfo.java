@@ -30,5 +30,11 @@ public class ConnectionInfo {
 	public void setTag(String tag) {
 		this.tag = tag;
 	}
+
+	@Override
+	public String toString() {
+		return "ConnectionInfo [host=" + host + ", port=" + port + ", tag="
+				+ tag + "]";
+	}
 	
 }
