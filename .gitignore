@@ -5,3 +5,4 @@ test-output/
 .DS_Store
 .project
 .classpath
+.directory
